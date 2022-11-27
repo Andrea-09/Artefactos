@@ -29,11 +29,13 @@ ESP8266WiFiMulti WiFiMulti;
 #define password "Andrita-09"
 
 //Your IP address or domain name with URL path
-const char* serverNameTemp = "http://192.168.208.176/temperature";
-const char* serverNameHum = "http://192.168.208.176/humidity";
+const char* serverNameTemp = "http://192.168.127.176/temperature";
+const char* serverNameHum = "http://192.168.127.176/humidity";
+const char* serverNameId = "http://192.168.127.176/id";
 
 String temperature;
 String humidity;
+String id;
 
 unsigned long previousMillis = 0;
 const long interval = 5000; 
@@ -45,6 +47,7 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 Adafruit_MQTT_Publish temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pruebaA");
 // Setup a feed called 'photocell' for publishing.
 Adafruit_MQTT_Publish humedad = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pruebaH");
+Adafruit_MQTT_Publish id = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/rfid");
 
 void setup() {
   Serial.begin(115200);
@@ -64,10 +67,10 @@ void setup() {
 }
 
 void loop() {
-MQTT_connect();
-  mqtt.processPackets(10000);
-  if(! mqtt.ping()) {   // ping the server to keep the mqtt connection alive
-    mqtt.disconnect();}
+  //MQTT_connect();
+ // mqtt.processPackets(10000);
+  //if(! mqtt.ping()) {   // ping the server to keep the mqtt connection alive
+   // mqtt.disconnect();}
   
   unsigned long currentMillis = millis();
   
@@ -76,11 +79,14 @@ MQTT_connect();
     if ((WiFiMulti.run() == WL_CONNECTED)) {
       temperature = httpGETRequest(serverNameTemp);
       humidity = httpGETRequest(serverNameHum);
+      id = httpGETRequest(serverNameHumId);
       Serial.println("Temperature: " + temperature);
       Serial.println("Humedad: " + humidity);
+      Serial.println("Humedad: " + id);
       
       temp.publish(temperature.c_str());
       humedad.publish(humidity.c_str());
+      id.publish(id.c_str());
 
       
       // save the last HTTP GET Request
